@@ -1,0 +1,257 @@
+/* seanchas: style.css */
+
+@import url("https://fonts.googleapis.com/css2?family=Newsreader&family=Bellefair&family=Bodoni+Moda:wght@400&family=Fraunces:ital,wght@0,300;1,300&family=Zilla+Slab&family=Young+Serif&family=Courier+Prime&display=swap");
+@import url("https://use.typekit.net/hzz7xik.css");   /* adobe fonts */
+
+/* 1. colours */
+:root {
+  --night: #12191C;  --water: #20323A;  --lichen: #28342F;  --dusk: #2B3646;
+  --birch: #F2EFE6;  --sun:   #EEE0B4;  --leaf:   #CBD6BA;  --mist: #DDE3DF;
+}
+
+/* --ground is the page colour; --patch-a to --patch-c colour the dappled light */
+.scheme-dark, body {
+  --ground: var(--night);  --patch-a: var(--water);  --patch-b: var(--lichen);  --patch-c: var(--dusk);
+  --text: #E6E9E4;  --text-soft: #B3BDB9;  --stroke: #C3CDD3;  --trail: #8FA395;
+  --panel: rgba(18, 25, 28, 0.84);
+}
+.scheme-light {
+  --ground: var(--leaf);  --patch-a: var(--birch);  --patch-b: var(--sun);  --patch-c: var(--mist);
+  --text: #1F2A28;  --text-soft: #44544F;  --stroke: #5A6E79;  --trail: #5B7265;
+  --panel: rgba(242, 239, 230, 0.88);
+}
+.scheme-dark.tale-ww { --ground: var(--lichen); --patch-a: var(--water); --patch-b: var(--night); --patch-c: var(--dusk); }
+
+/* 2. fonts */
+:root {
+  --font-head: "Young Serif", Georgia, serif;
+  --font-body: "Courier Prime", "Courier New", monospace;   /* stands in for pitch */
+}
+@font-face { font-family: "Fogie"; src: url("../fonts/fogie.ttf") format("truetype"); font-display: swap; }
+
+.tale-ww { --font-head: "Fogie", Georgia, serif;             --font-body: "Fraunces", Georgia, serif; }
+.tale-cr { --font-head: "p22-morris-golden", "Bellefair", Georgia, serif; --font-body: "sirenne-seventytwo-mvb", "Newsreader", Georgia, serif; }
+.tale-br { --font-head: "Bellefair", Georgia, serif;         --font-body: "Bodoni Moda", Georgia, serif; }
+.tale-bg { --font-head: "Zilla Slab", Georgia, serif;        --font-body: "Fraunces", Georgia, serif; }
+.tale-bg .story-text, .tale-ww .story-text { font-weight: 300; font-style: italic; }
+
+/* 3. base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@view-transition { navigation: auto; }   /* page fade */
+
+body {
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--text);
+  font: 1rem/1.7 var(--font-body);
+  letter-spacing: 0.04em;
+  overflow-x: hidden;
+}
+h1, h2, h3 { font-family: var(--font-head); font-weight: 400; text-transform: lowercase; line-height: 1.1; }
+.label, .button, .pager-btn, .entry dt { font-family: var(--font-head); }
+h1 { font-size: clamp(3rem, 9vw, 7rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2.4rem); }
+a  { color: inherit; }
+
+.label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-soft); letter-spacing: 0.2em; }
+
+/* 4. film grain + dappled light */
+body::after {
+  content: "";
+  position: fixed; inset: -25%; z-index: 100; pointer-events: none;
+  opacity: 0.105;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 0.9s steps(6) infinite;
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-5.33%, 4%); }      /* same pixel jitter as before, the layer is just smaller now */
+  40% { transform: translate(4%, -6.67%); }
+  60% { transform: translate(-4%, -2.67%); }
+  80% { transform: translate(6.67%, 5.33%); }
+}
+
+/* dappled light: 3 masked layers */
+html::before, html::after, body::before {
+  content: "";
+  position: fixed; inset: -12%; z-index: -1; pointer-events: none;
+  mask-size: 100% 100%; mask-repeat: no-repeat;
+}
+html::before {
+  background: linear-gradient(115deg, var(--patch-c), var(--patch-a) 45%, var(--patch-b));
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' preserveAspectRatio='none'><filter id='n' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.00039 0.00059' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  6 0 0 0 -2.4'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: drift-a 140s ease-in-out infinite alternate;
+}
+html::after {
+  background: linear-gradient(35deg, var(--patch-b), var(--patch-c) 50%, var(--patch-a));
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' preserveAspectRatio='none'><filter id='n' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.00067 0.00091' numOctaves='2' seed='23'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  14 0 0 0 -7.0'/><feGaussianBlur stdDeviation='20'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: drift-b 110s ease-in-out infinite alternate;
+}
+body::before {
+  background: linear-gradient(200deg, var(--patch-a), var(--patch-c) 55%, var(--patch-b));
+  opacity: 0.9;
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' preserveAspectRatio='none'><filter id='n' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.0017 0.0022' numOctaves='2' seed='41'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  14 0 0 0 -8.0'/><feGaussianBlur stdDeviation='15'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: drift-a 90s ease-in-out infinite alternate-reverse;
+}
+@keyframes drift-a { from { transform: translate(-1.5%, -1%); }  to { transform: translate(1.5%, 1%); } }
+@keyframes drift-b { from { transform: translate(1.5%, 0.5%); } to { transform: translate(-1.5%, -1.2%); } }
+
+/* title page: flat colour */
+.title-page { --ground: var(--dusk); }
+.title-page::before { inset: 0; opacity: 1; animation: none; background: var(--ground); mask-image: none; }
+
+/* 5. fade-in */
+.page > :nth-child(n+2), .opening-copy > * {
+  opacity: 0;
+  animation: fade-up 1.2s ease forwards;
+  animation-delay: calc(var(--delay) * 0.35s);
+}
+.page > :nth-child(2), .opening-copy > :nth-child(1) { --delay: 1; }
+.page > :nth-child(3), .opening-copy > :nth-child(2) { --delay: 2; }
+.page > :nth-child(4), .opening-copy > :nth-child(3) { --delay: 3; }
+.page > :nth-child(5) { --delay: 4; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 6. picture box */
+.scene {
+  position: relative; overflow: hidden; pointer-events: none;
+  --scene-w: min(100vw, calc((100vw + var(--panel-w)) / 2));   /* halfway between the text panel and the screen edge */
+  width: var(--scene-w); margin-left: calc(50% - var(--scene-w) / 2);   /* centred, breaking out of .page */
+  aspect-ratio: 21 / 9; max-height: 60vh;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.04);
+}
+.scene img, .card-img img, .credit-thumb img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* 7. story page */
+.page { max-width: 62rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; --panel-w: 40rem; }   /* --panel-w: text panel width, the banner is sized from it */
+.page:has(.dictionary) { --panel-w: 59rem; }     /* dictionary + further reading panels fill page */
+
+.pager { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; }
+
+.story-panel {                      /* overlaps the bottom of the picture */
+  position: relative; z-index: 3;
+  max-width: var(--panel-w);
+  margin: -6rem auto 0;
+  padding: 2rem 2rem 1.2rem;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  backdrop-filter: blur(3px);
+}
+.story-panel h2 { margin-bottom: 1rem; text-transform: none; }
+.dictionary h2 { text-transform: uppercase; }
+.dictionary h3 { margin-top: 2rem; }
+.story-text { max-width: 38rem; margin: 0 auto; font-size: 1.05rem; }
+.story-text p + p { margin-top: 1.2em; }
+
+.choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2.5rem; position: relative; z-index: 60; }
+
+/* buttons */
+.button, .pager-btn {
+  position: relative; z-index: 60;                   /* above trail */
+  border: 1px solid var(--stroke);
+  color: var(--text); text-decoration: none; text-align: center; text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: transform 0.35s ease, background 0.35s ease;
+}
+.button    { display: inline-block; padding: 0.9rem 1.6rem; }
+.pager-btn { min-width: 3.2rem; padding: 0.5rem 1rem; }
+.button:hover, .button:focus-visible, .pager-btn:hover, .pager-btn:focus-visible {
+  transform: translateY(-4px);
+  background: rgba(195, 205, 211, 0.12);
+}
+
+/* home icon */
+.pager-home::before {
+  content: "";
+  display: inline-block; width: 18px; height: 18px; vertical-align: -3px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round' stroke-linecap='round'><path d='M3 11.5L12 4l9 7.5'/><path d='M5.5 10v10h13V10'/><path d='M10 20v-6h4v6'/></svg>") center / contain no-repeat;
+}
+
+/* 8. mouse trail (cells are added by js/trail.js) */
+.trail-grid {
+  position: fixed; inset: 0; z-index: 50; overflow: hidden; list-style: none;
+  display: grid; align-content: start; justify-content: start;
+  grid-template-columns: repeat(auto-fill, 16px);
+  grid-auto-rows: 16px;
+}
+.trail-grid li { background: var(--trail); opacity: 0; transition: opacity 1.2s ease-out; }
+.trail-grid li:hover { opacity: 0.5; transition: opacity 0s; }
+@media (hover: none) { .trail-grid { display: none; } }
+
+/* 9. title page wheel */
+@property --spin { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+
+.opening {
+  position: relative; overflow: hidden;
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 2rem 1.5rem 2rem 6vw;
+}
+.opening-copy { display: flex; flex-direction: column; gap: 1rem; max-width: 34rem; }
+
+.wheel {
+  --radius:   36vh;
+  --gap: 90deg;
+  --cw:  clamp(9rem, 18vw, 16rem);
+  position: absolute; left: calc(100% - 5vw); top: 50%; width: 0; height: 0;
+  animation: turn 16s linear infinite;
+}
+.wheel:has(.card:hover) { animation-play-state: paused; }
+@keyframes turn { from { --spin: 0deg; } to { --spin: 360deg; } }
+
+.card {
+  --angle: calc((var(--slot) - 0.55) * var(--gap) - var(--spin));   /* slot counts up so cards arrive 01 to 04 in the spin direction; 0.55 sets the start position */
+  position: absolute; left: 0; top: 0; z-index: 60;
+  width: calc(var(--cw) * var(--card-scale, 1)); height: calc(var(--cw) * var(--card-scale, 1) * 1.3);
+  transform-origin: 0 0;
+  transform: rotate(var(--angle)) translateX(calc(-1 * var(--radius))) rotate(calc(-1 * var(--angle))) translate(-50%, -50%);
+  text-decoration: none; color: inherit;
+}
+.face {
+  height: 100%; padding: 0.9rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+  border: 2px solid var(--stroke);
+  background: rgba(18, 25, 28, 0.78);
+  transition: scale 0.35s ease, box-shadow 0.35s ease;
+}
+.face h3 { font-size: 1.2rem; text-transform: uppercase; }
+.card-img { position: relative; flex: 1; margin-top: 0.7rem; border: 1px dashed var(--stroke); overflow: hidden; }
+.card:hover .face, .card:focus-visible .face {
+  scale: 1.14;
+  box-shadow: 0 0 0 2px var(--stroke), 0 0 26px 6px rgba(195, 205, 211, 0.45);
+}
+
+/* 10. phone layout */
+@media (max-width: 700px) {
+  .page { padding: 2rem 1.1rem 4rem; }
+  .scene { aspect-ratio: 4 / 3; max-height: none; }
+  .story-panel { margin-top: -4rem; padding: 1.4rem 1.2rem 0.8rem; }
+  .choices { flex-direction: column; }
+  .opening { align-items: flex-start; padding: 2.5rem 1.2rem; }
+  .wheel { --radius: 30vh; --cw: 8rem; left: calc(100% - 2vw); }
+  body::after { opacity: 0.082; }
+}
+
+/* 11. reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .page > *, .opening-copy > * { opacity: 1; }
+}
+
+/* 12. dictionary */
+.dictionary { z-index: 60; }   /* above trail */
+.words { margin-top: 1rem; columns: 2 22rem; column-gap: 3rem; }
+.entry { padding: 0.8rem 0; border-top: 1px solid var(--stroke); break-inside: avoid; }
+.entry dt { width: fit-content; font-size: 1.2rem; transition: color 0.3s; }
+.entry dt:hover { color: var(--trail); }
+.entry dd { margin-top: 0.15rem; color: var(--text-soft); }
+.credits { list-style: none; margin-top: 1rem; columns: 2 22rem; column-gap: 3rem; }
+.credits li { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0; border-top: 1px solid var(--stroke); break-inside: avoid; }
+.credit-thumb { position: relative; flex: none; width: 5rem; aspect-ratio: 2 / 1; border: 1px solid var(--stroke); }
+.credit-title { flex: 1; font-family: var(--font-head); }
+.credit-by { flex: 1; align-self: stretch; border-bottom: 1px dotted var(--stroke); min-height: 1.4rem; }
